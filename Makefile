@@ -1,21 +1,21 @@
-#.o files
-SRC  = project_main.o state_machine.o timer.o switches.o buzzer.o led.o
-CPU             = msp430g2553
-CFLAGS          = -mmcu=${CPU} -I../h
-LDFLAGS = ../demos/lib/libTimer.a -L/opt/ti/msp430_gcc/include
+all: libTimer.a
 
-# Switch the compiler 
+CPU             = msp430g2553
+CFLAGS          = -mmcu=${CPU} 
+
+#switch the compiler (for the internal make rules)
 CC              = msp430-elf-gcc
 AS              = msp430-elf-as
+AR              = msp430-elf-ar
 
-all: arch1_project2.elf 
+libTimer.a: clocksTimer.o sr.o
+	$(AR) crs $@ $^
 
-# Additional rules for files
-arch1_project2.elf: ${SRC} ../demos/lib/libTimer.a
-	${CC} $(CFLAGS) $(LDFLAGS) -o $@ $^
-
-load: arch1_project2.elf
-	mspdebug rf2500 "prog $^"
+install: libTimer.a
+	mkdir -p ../h ../lib
+	mv $^ ../lib
+	cp *.h ../h
 
 clean:
-	rm -f *.o *.elf
+	rm -f timerLib.a *.o
+
